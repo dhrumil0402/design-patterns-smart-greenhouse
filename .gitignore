@@ -1,0 +1,15 @@
+﻿backend/.venv/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.egg-info/
+backend/build/
+backend/dist/
+.env
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
