@@ -19,8 +19,8 @@ pattern and no business tables yet.
 
 1. Clone and configure environment
 ```powershell
-   git clone <your-repo-url>
-   cd <your-repo-name>
+   git clone https://github.com/dhrumil0402/design-patterns-smart-greenhouse.git
+   cd design-patterns-smart-greenhouse
    Copy-Item .env.example .env
    Copy-Item frontend\.env.example frontend\.env
 ```
