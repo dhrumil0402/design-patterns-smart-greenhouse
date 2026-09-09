@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 from logging.config import fileConfig
@@ -11,6 +11,8 @@ from sqlalchemy import engine_from_config, pool
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
 from infrastructure.settings import get_settings  # noqa: E402
+from infrastructure.persistence import models  # noqa: E402,F401
+from infrastructure.persistence.base import Base  # noqa: E402
 
 config = context.config
 
@@ -20,9 +22,8 @@ if config.config_file_name is not None:
 settings = get_settings()
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
-# No ORM models exist yet in Phase 1 (skeleton only). Phase 2 introduces the
-# `devices` model and will set this to that model's metadata.
-target_metadata = None
+# Phase 2 introduces the devices model via infrastructure.persistence.models.
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
