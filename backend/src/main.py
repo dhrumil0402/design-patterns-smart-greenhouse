@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
 
 from infrastructure.settings import get_settings
 from interfaces.api.health import router as health_router
+from interfaces.api.sensors import router as sensors_router
 
 settings = get_settings()
 
@@ -11,7 +12,7 @@ app = FastAPI(
     title="Smart Greenhouse API",
     description="Backend API for the Smart Greenhouse platform.",
     version="0.1.0",
-    # Built-in Swagger / ReDoc are disabled on purpose — Scalar (below) is
+    # Built-in Swagger / ReDoc are disabled on purpose â€” Scalar (below) is
     # the documented API reference for this course.
     docs_url=None,
     redoc_url=None,
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(sensors_router)
 
 
 @app.get("/")
