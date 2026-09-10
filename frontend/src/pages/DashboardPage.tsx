@@ -1,6 +1,7 @@
-﻿const sections = [
+﻿import SensorList from "../features/sensors/SensorList";
+
+const placeholderSections = [
   { id: "section-overview", title: "Overview" },
-  { id: "section-sensors", title: "Sensors" },
   { id: "section-controls", title: "Controls" },
   { id: "section-automation", title: "Automation" },
   { id: "section-configuration", title: "Configuration" },
@@ -12,7 +13,15 @@ export default function DashboardPage() {
     <div>
       <h2 className="mb-6 text-2xl font-semibold">Dashboard</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {sections.map((section) => (
+        <section
+          id="sensors"
+          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
+        >
+          <h3 className="mb-3 text-base font-medium">Sensors</h3>
+          <SensorList />
+        </section>
+
+        {placeholderSections.map((section) => (
           <section
             key={section.id}
             id={section.id}
