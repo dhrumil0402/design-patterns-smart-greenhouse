@@ -11,3 +11,4 @@ This project is built incrementally, one design pattern per phase.
   section.
 - Later phases continue to add one pattern at a time on top of this
   foundation, without restructuring the repo.
+  
