@@ -1,6 +1,8 @@
 ﻿import uuid
 from datetime import datetime
 
+from sqlalchemy import Index, String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -24,5 +26,13 @@ class DeviceRow(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+    )
+    device_family: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default="simulation"
+    )
+
+    __table_args__ = (
+        Index("ix_devices_role", "role"),
+        Index("ix_devices_family", "device_family"),
     )
 

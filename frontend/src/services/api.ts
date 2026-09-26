@@ -45,3 +45,42 @@ export async function createSensor(
   }
   return (await response.json()) as SensorDto;
 }
+export interface DeviceDto {
+  id: string;
+  device_type: string;
+  role: "sensor" | "actuator";
+  device_family: string;
+  display_name: string;
+  default_config: Record<string, unknown>;
+}
+
+export type DeviceFamily = "simulation" | "edge";
+
+export async function fetchDevices(params: {
+  family?: string;
+  role?: string;
+} = {}): Promise<DeviceDto[]> {
+  const query = new URLSearchParams();
+  if (params.family) query.set("family", params.family);
+  if (params.role) query.set("role", params.role);
+  const queryString = query.toString();
+  const url = `${API_BASE_URL}/api/devices${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load devices: ${response.status}`);
+  }
+  return (await response.json()) as DeviceDto[];
+}
+
+export async function provisionDeviceFamily(family: DeviceFamily): Promise<DeviceDto[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/devices/provision?family=${family}`,
+    { method: "POST" },
+  );
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.detail ?? `Failed to provision ${family}: ${response.status}`);
+  }
+  return (await response.json()) as DeviceDto[];
+}

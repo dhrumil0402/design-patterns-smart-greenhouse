@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from domain.sensors.entity import Sensor
+from domain.devices.entity import Device
 from infrastructure.persistence.models import DeviceRow
 
 
@@ -18,11 +19,24 @@ def _row_to_sensor(row: DeviceRow) -> Sensor:
     )
 
 
+def _row_to_device(row: DeviceRow) -> Device:
+    return Device(
+        id=row.id,
+        device_type=row.device_type,
+        role=row.role,
+        device_family=row.device_family,
+        display_name=row.display_name or row.device_type,
+        default_config=row.default_config or {},
+    )
+
+
 class DeviceRepository:
-    """Owns all SQL for the `devices` table. Converts DeviceRow <-> Sensor."""
+    """Owns all SQL for the `devices` table. Converts DeviceRow <-> Sensor/Device."""
 
     def __init__(self, db: Session) -> None:
         self._db = db
+
+    # --- Phase 2 (Factory Method) methods, unchanged ---
 
     def add(self, sensor: Sensor) -> Sensor:
         row = DeviceRow(
@@ -46,3 +60,33 @@ class DeviceRepository:
         if row is None or row.role != "sensor":
             return None
         return _row_to_sensor(row)
+
+    # --- Phase 3 (Abstract Factory) additions ---
+
+    def save_device(self, device: Device) -> Device:
+        row = DeviceRow(
+            device_type=device.device_type,
+            role=device.role,
+            device_family=device.device_family,
+            display_name=device.display_name,
+            default_config=device.default_config,
+        )
+        self._db.add(row)
+        self._db.commit()
+        self._db.refresh(row)
+        return _row_to_device(row)
+
+    def save_devices(self, devices: list[Device]) -> list[Device]:
+        return [self.save_device(d) for d in devices]
+
+    def list_devices(
+        self, *, device_family: str | None = None, role: str | None = None
+    ) -> list[Device]:
+        stmt = select(DeviceRow)
+        if device_family:
+            stmt = stmt.where(DeviceRow.device_family == device_family)
+        if role:
+            stmt = stmt.where(DeviceRow.role == role)
+        stmt = stmt.order_by(DeviceRow.created_at.desc())
+        rows = self._db.execute(stmt).scalars().all()
+        return [_row_to_device(r) for r in rows]
