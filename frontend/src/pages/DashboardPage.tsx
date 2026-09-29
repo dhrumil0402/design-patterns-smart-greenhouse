@@ -1,11 +1,11 @@
 ﻿import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
+import LocationConfigWizard from "../features/locations/LocationConfigWizard";
 
 const placeholderSections = [
   { id: "section-overview", title: "Overview" },
   { id: "section-controls", title: "Controls" },
   { id: "section-automation", title: "Automation" },
-  { id: "section-configuration", title: "Configuration" },
   { id: "section-events", title: "Events" },
 ];
 
@@ -28,6 +28,14 @@ export default function DashboardPage() {
         >
           <h3 className="mb-3 text-base font-medium">Devices</h3>
           <DeviceList />
+        </section>
+
+        <section
+          id="section-configuration"
+          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
+        >
+          <h3 className="mb-3 text-base font-medium">Configuration</h3>
+          <LocationConfigWizard />
         </section>
 
         {placeholderSections.map((section) => (

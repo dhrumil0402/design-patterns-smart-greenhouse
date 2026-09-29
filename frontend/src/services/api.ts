@@ -84,3 +84,53 @@ export async function provisionDeviceFamily(family: DeviceFamily): Promise<Devic
   }
   return (await response.json()) as DeviceDto[];
 }
+export interface ZoneCreateInput {
+  name: string;
+  moisture_threshold_low: number;
+  moisture_threshold_high: number;
+  schedule?: Record<string, unknown>;
+}
+
+export interface ZoneDto {
+  id: string;
+  location_id: string;
+  name: string;
+  moisture_threshold_low: number;
+  moisture_threshold_high: number;
+  schedule: Record<string, unknown>;
+}
+
+export interface LocationSummaryDto {
+  id: string;
+  name: string;
+}
+
+export interface LocationConfigDto {
+  location: LocationSummaryDto;
+  zones: ZoneDto[];
+}
+
+export async function createLocationConfig(
+  locationName: string,
+  zones: ZoneCreateInput[],
+): Promise<LocationConfigDto> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/config`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location_name: locationName, zones }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.detail ?? `Failed to create location config: ${response.status}`);
+  }
+  return (await response.json()) as LocationConfigDto;
+}
+
+export async function fetchLocationConfig(locationId: string): Promise<LocationConfigDto> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/${locationId}/config`);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.detail ?? `Failed to load location config: ${response.status}`);
+  }
+  return (await response.json()) as LocationConfigDto;
+}

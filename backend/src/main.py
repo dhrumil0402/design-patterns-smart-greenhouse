@@ -6,6 +6,7 @@ from infrastructure.settings import get_settings
 from interfaces.api.health import router as health_router
 from interfaces.api.sensors import router as sensors_router
 from interfaces.api.devices import router as devices_router
+from interfaces.api.locations import router as locations_router
 
 settings = get_settings()
 
@@ -30,6 +31,7 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(sensors_router)
 app.include_router(devices_router)
+app.include_router(locations_router)
 
 
 @app.get("/")
