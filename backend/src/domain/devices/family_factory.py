@@ -29,7 +29,8 @@ class SimulationDeviceFactory(DeviceFamilyFactory):
                 role="sensor",
                 device_family=self.family_key,
                 display_name=moisture.display_name,
-                default_config=moisture.default_config,
+                default_config={**moisture.default_config, "protocol": "simulation"},
+                sampling_interval_seconds=moisture.default_config["sampling_interval_seconds"],
             ),
             Device(
                 id=None,
@@ -37,7 +38,8 @@ class SimulationDeviceFactory(DeviceFamilyFactory):
                 role="sensor",
                 device_family=self.family_key,
                 display_name=light.display_name,
-                default_config=light.default_config,
+                default_config={**light.default_config, "protocol": "simulation"},
+                sampling_interval_seconds=light.default_config["sampling_interval_seconds"],
             ),
             Device(
                 id=None,
@@ -74,7 +76,8 @@ class EdgeHardwareFactory(DeviceFamilyFactory):
                 role="sensor",
                 device_family=self.family_key,
                 display_name=moisture.display_name,
-                default_config={**moisture.default_config, "protocol": "gpio-stub"},
+                default_config={**moisture.default_config, "protocol": "mqtt"},
+                sampling_interval_seconds=moisture.default_config["sampling_interval_seconds"],
             ),
             Device(
                 id=None,
@@ -82,7 +85,8 @@ class EdgeHardwareFactory(DeviceFamilyFactory):
                 role="sensor",
                 device_family=self.family_key,
                 display_name=light.display_name,
-                default_config={**light.default_config, "protocol": "gpio-stub"},
+                default_config={**light.default_config, "protocol": "mqtt"},
+                sampling_interval_seconds=light.default_config["sampling_interval_seconds"],
             ),
             Device(
                 id=None,

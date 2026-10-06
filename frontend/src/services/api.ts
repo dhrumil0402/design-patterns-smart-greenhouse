@@ -134,3 +134,93 @@ export async function fetchLocationConfig(locationId: string): Promise<LocationC
   }
   return (await response.json()) as LocationConfigDto;
 }
+
+export interface ReadingDto {
+  device_id: string;
+  value: number;
+  unit: string;
+  source: "simulation" | "mqtt" | "vendor" | string;
+  recorded_at: string;
+}
+
+export interface SamplingDto {
+  sampling_interval_seconds: number;
+  tracking_enabled: boolean;
+}
+
+async function getErrorMessage(
+  response: Response,
+  fallback: string,
+): Promise<string> {
+  const body = await response.json().catch(() => ({}));
+  return body.detail ?? `${fallback}: ${response.status}`;
+}
+
+export async function readSensor(sensorId: string): Promise<ReadingDto> {
+  const response = await fetch(`${API_BASE_URL}/api/sensors/${sensorId}/read`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Failed to read sensor"));
+  }
+
+  return (await response.json()) as ReadingDto;
+}
+
+export async function fetchSensorReadings(
+  sensorId: string,
+  limit = 1,
+): Promise<ReadingDto[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/sensors/${sensorId}/readings?limit=${limit}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await getErrorMessage(response, "Failed to load sensor readings"),
+    );
+  }
+
+  return (await response.json()) as ReadingDto[];
+}
+
+export async function fetchSampling(
+  deviceId: string,
+): Promise<SamplingDto> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/devices/${deviceId}/sampling`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await getErrorMessage(response, "Failed to load sampling settings"),
+    );
+  }
+
+  return (await response.json()) as SamplingDto;
+}
+
+export async function updateSampling(
+  deviceId: string,
+  settings: SamplingDto,
+): Promise<SamplingDto> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/devices/${deviceId}/sampling`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settings),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await getErrorMessage(response, "Failed to update sampling settings"),
+    );
+  }
+
+  return (await response.json()) as SamplingDto;
+}

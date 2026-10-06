@@ -10,3 +10,5 @@ class Device:
     device_family: str     # "simulation" | "edge"
     display_name: str
     default_config: dict
+    sampling_interval_seconds: int = 300
+    tracking_enabled: bool = True

@@ -27,6 +27,8 @@ def _row_to_device(row: DeviceRow) -> Device:
         device_family=row.device_family,
         display_name=row.display_name or row.device_type,
         default_config=row.default_config or {},
+        sampling_interval_seconds=row.sampling_interval_seconds,
+        tracking_enabled=row.tracking_enabled,
     )
 
 
@@ -36,7 +38,7 @@ class DeviceRepository:
     def __init__(self, db: Session) -> None:
         self._db = db
 
-    # --- Phase 2 (Factory Method) methods, unchanged ---
+    # --- Phase 2 (Factory Method) methods ---
 
     def add(self, sensor: Sensor) -> Sensor:
         row = DeviceRow(
@@ -44,6 +46,9 @@ class DeviceRepository:
             role="sensor",
             display_name=sensor.display_name,
             default_config=sensor.default_config,
+            sampling_interval_seconds=max(
+                5, int(sensor.default_config.get("sampling_interval_seconds", 300))
+            ),
         )
         self._db.add(row)
         self._db.commit()
@@ -70,6 +75,8 @@ class DeviceRepository:
             device_family=device.device_family,
             display_name=device.display_name,
             default_config=device.default_config,
+            sampling_interval_seconds=device.sampling_interval_seconds,
+            tracking_enabled=device.tracking_enabled,
         )
         self._db.add(row)
         self._db.commit()
@@ -90,3 +97,16 @@ class DeviceRepository:
         stmt = stmt.order_by(DeviceRow.created_at.desc())
         rows = self._db.execute(stmt).scalars().all()
         return [_row_to_device(r) for r in rows]
+    def get_device(self, device_id: uuid.UUID) -> Device | None:
+        row = self._db.get(DeviceRow, device_id)
+        return _row_to_device(row) if row is not None else None
+
+    def update_sampling(self, device_id: uuid.UUID, interval: int, tracking: bool) -> Device | None:
+        row = self._db.get(DeviceRow, device_id)
+        if row is None:
+            return None
+        row.sampling_interval_seconds = interval
+        row.tracking_enabled = tracking
+        self._db.commit()
+        self._db.refresh(row)
+        return _row_to_device(row)

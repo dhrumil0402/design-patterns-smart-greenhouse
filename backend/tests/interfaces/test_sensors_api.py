@@ -1,5 +1,8 @@
 ﻿import uuid
 
+import pytest
+from fastapi.testclient import TestClient
+
 from fastapi.testclient import TestClient
 
 from application.sensors.service import SensorService
@@ -29,8 +32,13 @@ class FakeRepository:
 def _override_service():
     return SensorService(FakeRepository())
 
+@pytest.fixture(autouse=True)
+def override_sensor_service():
+    app.dependency_overrides[get_sensor_service] = _override_service
+    yield
+    app.dependency_overrides.pop(get_sensor_service, None)
 
-app.dependency_overrides[get_sensor_service] = _override_service
+
 client = TestClient(app)
 
 

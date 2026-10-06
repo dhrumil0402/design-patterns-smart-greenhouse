@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import Index, String, DateTime, func, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, Index, Integer, String, DateTime, func, ForeignKey, Numeric, text
 
 from infrastructure.persistence.base import Base
 
@@ -26,6 +27,12 @@ class DeviceRow(Base):
     )
     device_family: Mapped[str] = mapped_column(
         String(32), nullable=False, server_default="simulation"
+    )
+    sampling_interval_seconds: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="300"
+    )
+    tracking_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
     )
 
     __table_args__ = (
@@ -77,4 +84,29 @@ class ZoneRow(Base):
 
     __table_args__ = (
         Index("ix_zones_location_id", "location_id"),
+    )
+    # --- Phase 5: Sensor readings ---
+
+class ReadingRow(Base):
+    __tablename__ = "sensor_readings"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    device_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("devices.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    value: Mapped[float] = mapped_column(Numeric(12, 4), nullable=False)
+    unit: Mapped[str] = mapped_column(String(32), nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_sensor_readings_device_id_recorded_at", "device_id", "recorded_at"),
     )
