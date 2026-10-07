@@ -110,3 +110,30 @@ class ReadingRow(Base):
     __table_args__ = (
         Index("ix_sensor_readings_device_id_recorded_at", "device_id", "recorded_at"),
     )
+
+# --- Phase 6: Automation rules (one active strategy per location) ---
+
+class AutomationRuleRow(Base):
+    __tablename__ = "automation_rules"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    location_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("locations.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,  # one active strategy per location
+    )
+    strategy_key: Mapped[str] = mapped_column(String(32), nullable=False)
+    parameters: Mapped[dict] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default="{}"
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
