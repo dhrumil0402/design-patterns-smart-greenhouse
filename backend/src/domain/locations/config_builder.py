@@ -1,8 +1,6 @@
 from domain.locations.entity import Location, LocationConfig, Zone
 from domain.locations.errors import ConfigurationError
-
-MIN_THRESHOLD = 0.0
-MAX_THRESHOLD = 1.0
+from domain.locations.zone_rules import validate_unique_zone_names, validate_zone
 
 
 class LocationConfigBuilder:
@@ -38,21 +36,7 @@ class LocationConfigBuilder:
             raise ConfigurationError("at least one zone is required")
 
         for zone in self._zones:
-            if not zone.name:
-                raise ConfigurationError("zone name is required")
-            if not (MIN_THRESHOLD <= zone.moisture_threshold_low <= MAX_THRESHOLD):
-                raise ConfigurationError(
-                    f"zone '{zone.name}' low threshold must be between "
-                    f"{MIN_THRESHOLD} and {MAX_THRESHOLD}"
-                )
-            if not (MIN_THRESHOLD <= zone.moisture_threshold_high <= MAX_THRESHOLD):
-                raise ConfigurationError(
-                    f"zone '{zone.name}' high threshold must be between "
-                    f"{MIN_THRESHOLD} and {MAX_THRESHOLD}"
-                )
-            if zone.moisture_threshold_low >= zone.moisture_threshold_high:
-                raise ConfigurationError(
-                    f"zone '{zone.name}' low threshold must be strictly less than high threshold"
-                )
+            validate_zone(zone)
+        validate_unique_zone_names(self._zones)
 
         return LocationConfig(location=Location(name=self._name, zones=tuple(self._zones)))

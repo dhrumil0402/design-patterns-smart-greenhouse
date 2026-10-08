@@ -32,3 +32,9 @@ class LocationSummaryDto(BaseModel):
 class LocationConfigReadDto(BaseModel):
     location: LocationSummaryDto
     zones: list[ZoneReadDto]
+
+class ZoneUpdateDto(BaseModel):
+    name: str
+    moisture_threshold_low: float
+    moisture_threshold_high: float
+    schedule: dict | None = None  # None means "keep the current schedule"

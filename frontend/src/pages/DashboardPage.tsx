@@ -1,6 +1,7 @@
-﻿import SensorList from "../features/sensors/SensorList";
+﻿import { useState } from "react";
+import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
-import LocationConfigWizard from "../features/locations/LocationConfigWizard";
+import LocationManager from "../features/locations/LocationManager";
 
 const placeholderSections = [
   { id: "section-overview", title: "Overview" },
@@ -10,6 +11,8 @@ const placeholderSections = [
 ];
 
 export default function DashboardPage() {
+  const [locationsVersion, setLocationsVersion] = useState(0);
+
   return (
     <div>
       <h2 className="mb-6 text-2xl font-semibold">Dashboard</h2>
@@ -27,7 +30,7 @@ export default function DashboardPage() {
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
         >
           <h3 className="mb-3 text-base font-medium">Devices</h3>
-          <DeviceList />
+          <DeviceList refreshKey={locationsVersion} />
         </section>
 
         <section
@@ -35,7 +38,7 @@ export default function DashboardPage() {
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
         >
           <h3 className="mb-3 text-base font-medium">Configuration</h3>
-          <LocationConfigWizard />
+          <LocationManager onChanged={() => setLocationsVersion((v) => v + 1)} />
         </section>
 
         {placeholderSections.map((section) => (

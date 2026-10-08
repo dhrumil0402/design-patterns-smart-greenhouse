@@ -29,6 +29,8 @@ def _row_to_device(row: DeviceRow) -> Device:
         default_config=row.default_config or {},
         sampling_interval_seconds=row.sampling_interval_seconds,
         tracking_enabled=row.tracking_enabled,
+        zone_id=row.zone_id,
+        location_id=row.location_id,
     )
 
 
@@ -97,9 +99,31 @@ class DeviceRepository:
         stmt = stmt.order_by(DeviceRow.created_at.desc())
         rows = self._db.execute(stmt).scalars().all()
         return [_row_to_device(r) for r in rows]
+    
     def get_device(self, device_id: uuid.UUID) -> Device | None:
         row = self._db.get(DeviceRow, device_id)
         return _row_to_device(row) if row is not None else None
+
+    def set_assignment(
+        self, device_id: uuid.UUID, zone_id: uuid.UUID | None, location_id: uuid.UUID | None
+    ) -> Device | None:
+        row = self._db.get(DeviceRow, device_id)
+        if row is None:
+            return None
+        row.zone_id = zone_id
+        row.location_id = location_id
+        self._db.commit()
+        self._db.refresh(row)
+        return _row_to_device(row)
+
+    def list_devices_in_zone(self, zone_id: uuid.UUID) -> list[Device]:
+        stmt = (
+            select(DeviceRow)
+            .where(DeviceRow.zone_id == zone_id)
+            .order_by(DeviceRow.created_at)
+        )
+        rows = self._db.execute(stmt).scalars().all()
+        return [_row_to_device(r) for r in rows]
 
     def update_sampling(self, device_id: uuid.UUID, interval: int, tracking: bool) -> Device | None:
         row = self._db.get(DeviceRow, device_id)

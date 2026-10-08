@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   createLocationConfig,
   type LocationConfigDto,
@@ -11,7 +11,11 @@ function emptyZone(): ZoneCreateInput {
   return { name: "", moisture_threshold_low: 0.2, moisture_threshold_high: 0.4 };
 }
 
-export default function LocationConfigWizard() {
+interface Props {
+  onCreated?: (config: LocationConfigDto) => void;
+}
+
+export default function LocationConfigWizard({ onCreated }: Props) {
   const [locationName, setLocationName] = useState("");
   const [zones, setZones] = useState<ZoneCreateInput[]>([emptyZone()]);
   const [state, setState] = useState<SubmitState>("idle");
@@ -42,7 +46,7 @@ export default function LocationConfigWizard() {
     return null;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const issue = clientSideIssue();
     if (issue) {
@@ -56,6 +60,7 @@ export default function LocationConfigWizard() {
     try {
       const saved = await createLocationConfig(locationName, zones);
       setResult(saved);
+      onCreated?.(saved);
       setState("idle");
       setLocationName("");
       setZones([emptyZone()]);

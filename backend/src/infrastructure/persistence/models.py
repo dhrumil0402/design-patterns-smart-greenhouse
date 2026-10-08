@@ -34,10 +34,22 @@ class DeviceRow(Base):
     tracking_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("true")
     )
+    zone_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("zones.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    location_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("locations.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     __table_args__ = (
         Index("ix_devices_role", "role"),
         Index("ix_devices_family", "device_family"),
+        Index("ix_devices_zone_id", "zone_id"),
+        Index("ix_devices_location_id", "location_id"),
     )
 
 # --- Phase 4: Location & Zone models ---

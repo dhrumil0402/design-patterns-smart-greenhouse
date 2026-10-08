@@ -55,3 +55,24 @@ def test_build_supports_multiple_zones():
         .build()
     )
     assert len(config.location.zones) == 2
+
+def test_build_rejects_duplicate_zone_names():
+    with pytest.raises(ConfigurationError):
+        (
+            LocationConfigBuilder()
+            .with_location_name("Lab Site A")
+            .add_zone("Bench 1", 0.2, 0.45)
+            .add_zone("bench 1 ", 0.15, 0.35)  # same name, different case and spacing
+            .build()
+        )
+
+
+def test_same_zone_name_is_allowed_in_different_locations():
+    for site in ("Lab Site A", "Lab Site B"):
+        config = (
+            LocationConfigBuilder()
+            .with_location_name(site)
+            .add_zone("Bench 1", 0.2, 0.45)
+            .build()
+        )
+        assert config.location.zones[0].name == "Bench 1"

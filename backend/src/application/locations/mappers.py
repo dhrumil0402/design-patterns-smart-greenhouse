@@ -1,5 +1,9 @@
+import uuid
+
 from domain.locations.config_builder import LocationConfigBuilder
-from domain.locations.entity import Location, LocationConfig
+from domain.locations.entity import Location, LocationConfig, LocationSummary, Zone
+from domain.locations.config_builder import LocationConfigBuilder
+from domain.locations.entity import Location, LocationConfig, LocationSummary
 from application.locations.dto import (
     LocationConfigCreateDto,
     LocationConfigReadDto,
@@ -34,4 +38,16 @@ def location_to_dto(location: Location) -> LocationConfigReadDto:
             )
             for zone in location.zones
         ],
+    )
+def summary_to_dto(summary: LocationSummary) -> LocationSummaryDto:
+    return LocationSummaryDto(id=summary.id, name=summary.name)
+
+def zone_to_dto(location_id: uuid.UUID, zone: Zone) -> ZoneReadDto:
+    return ZoneReadDto(
+        id=zone.id,
+        location_id=location_id,
+        name=zone.name,
+        moisture_threshold_low=zone.moisture_threshold_low,
+        moisture_threshold_high=zone.moisture_threshold_high,
+        schedule=zone.schedule,
     )
