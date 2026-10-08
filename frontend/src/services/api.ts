@@ -303,3 +303,41 @@ export async function assignDeviceZone(
   }
   return (await response.json()) as DeviceDto;
 }
+
+export interface StrategyDto {
+  location_id: string;
+  strategy_key: string;
+}
+
+export interface RecommendationDto {
+  location_id: string;
+  strategy_key: string;
+  action: string;
+  reason: string;
+}
+
+export async function saveStrategy(
+  locationId: string,
+  strategyKey: string,
+): Promise<StrategyDto> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/${locationId}/automation`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ strategy_key: strategyKey }),
+  });
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Failed to save strategy"));
+  }
+  return (await response.json()) as StrategyDto;
+}
+
+export async function evaluateAutomation(locationId: string): Promise<RecommendationDto> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/locations/${locationId}/automation/evaluate`,
+    { method: "POST" },
+  );
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Failed to evaluate automation"));
+  }
+  return (await response.json()) as RecommendationDto;
+}

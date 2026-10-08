@@ -2,11 +2,11 @@
 import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
 import LocationManager from "../features/locations/LocationManager";
+import StrategyPanel from "../features/automation/StrategyPanel";
 
 const placeholderSections = [
   { id: "section-overview", title: "Overview" },
   { id: "section-controls", title: "Controls" },
-  { id: "section-automation", title: "Automation" },
   { id: "section-events", title: "Events" },
 ];
 
@@ -39,6 +39,14 @@ export default function DashboardPage() {
         >
           <h3 className="mb-3 text-base font-medium">Configuration</h3>
           <LocationManager onChanged={() => setLocationsVersion((v) => v + 1)} />
+        </section>
+
+        <section
+          id="section-automation"
+          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
+        >
+          <h3 className="mb-3 text-base font-medium">Automation</h3>
+          <StrategyPanel refreshKey={locationsVersion} />
         </section>
 
         {placeholderSections.map((section) => (
