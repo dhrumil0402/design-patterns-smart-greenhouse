@@ -13,6 +13,7 @@ from interfaces.api.devices import router as devices_router
 from interfaces.api.locations import router as locations_router
 from infrastructure.sampler_runner import sampler_loop
 from interfaces.api.sampling import router as sampling_router
+from interfaces.api.automation import router as automation_router
 
 settings = get_settings()
 @asynccontextmanager
@@ -51,6 +52,7 @@ app.include_router(sensors_router)
 app.include_router(devices_router)
 app.include_router(locations_router)
 app.include_router(sampling_router)
+app.include_router(automation_router)
 
 
 @app.get("/")
