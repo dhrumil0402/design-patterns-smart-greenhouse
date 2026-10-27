@@ -341,3 +341,44 @@ export async function evaluateAutomation(locationId: string): Promise<Recommenda
   }
   return (await response.json()) as RecommendationDto;
 }
+
+export interface OverviewDeviceDto {
+  id: string;
+  device_type: string;
+  role: "sensor" | "actuator" | string;
+  display_name: string;
+}
+
+export interface OverviewReadingDto {
+  device_id: string;
+  value: number;
+  unit: string;
+  recorded_at: string;
+  tracking_enabled: boolean;
+  sampling_interval_seconds: number;
+}
+
+export interface OverviewZoneDto {
+  id: string;
+  name: string;
+  moisture_threshold_low: number;
+  moisture_threshold_high: number;
+  devices: OverviewDeviceDto[];
+  latest_readings: OverviewReadingDto[];
+}
+
+export interface LocationOverviewDto {
+  location: LocationSummaryDto;
+  device_counts: { sensor: number; actuator: number };
+  zones: OverviewZoneDto[];
+  strategy_key: string | null;
+  last_recommendation: { action: string; reason: string } | null;
+}
+
+export async function fetchOverview(locationId: string): Promise<LocationOverviewDto> {
+  const response = await fetch(`${API_BASE_URL}/api/locations/${locationId}/overview`);
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, "Failed to load overview"));
+  }
+  return (await response.json()) as LocationOverviewDto;
+}

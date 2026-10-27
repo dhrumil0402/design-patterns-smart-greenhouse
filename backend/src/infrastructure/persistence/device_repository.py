@@ -125,6 +125,16 @@ class DeviceRepository:
         rows = self._db.execute(stmt).scalars().all()
         return [_row_to_device(r) for r in rows]
 
+    def list_assigned_devices(self, location_id: uuid.UUID) -> list[Device]:
+        """Devices assigned to a zone in this location (location_id set and zone_id not null)."""
+        stmt = (
+            select(DeviceRow)
+            .where(DeviceRow.location_id == location_id, DeviceRow.zone_id.is_not(None))
+            .order_by(DeviceRow.created_at)
+        )
+        rows = self._db.execute(stmt).scalars().all()
+        return [_row_to_device(r) for r in rows]
+
     def update_sampling(self, device_id: uuid.UUID, interval: int, tracking: bool) -> Device | None:
         row = self._db.get(DeviceRow, device_id)
         if row is None:

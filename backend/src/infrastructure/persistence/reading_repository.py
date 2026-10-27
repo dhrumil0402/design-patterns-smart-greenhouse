@@ -48,6 +48,19 @@ class ReadingRepository:
         )
         return [_row_to_reading(r) for r in self._db.execute(stmt).scalars().all()]
 
+    def latest_for_devices(self, device_ids: list[uuid.UUID]) -> dict[uuid.UUID, Reading]:
+        """Newest reading per device in ONE query (any source). Devices with no row are absent."""
+        if not device_ids:
+            return {}
+        stmt = (
+            select(ReadingRow)
+            .where(ReadingRow.device_id.in_(device_ids))
+            .distinct(ReadingRow.device_id)  # PostgreSQL DISTINCT ON: one row per device
+            .order_by(ReadingRow.device_id, ReadingRow.recorded_at.desc())  # newest wins
+        )
+        rows = self._db.execute(stmt).scalars().all()
+        return {row.device_id: _row_to_reading(row) for row in rows}
+
     def latest_recorded_at(self, device_id: uuid.UUID) -> datetime | None:
         stmt = select(func.max(ReadingRow.recorded_at)).where(ReadingRow.device_id == device_id)
         return self._db.execute(stmt).scalar()

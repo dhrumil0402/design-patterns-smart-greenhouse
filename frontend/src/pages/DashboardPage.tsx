@@ -3,9 +3,9 @@ import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
 import LocationManager from "../features/locations/LocationManager";
 import StrategyPanel from "../features/automation/StrategyPanel";
+import OverviewPanel from "../components/overview/OverviewPanel";
 
 const placeholderSections = [
-  { id: "section-overview", title: "Overview" },
   { id: "section-controls", title: "Controls" },
   { id: "section-events", title: "Events" },
 ];
@@ -17,6 +17,14 @@ export default function DashboardPage() {
     <div>
       <h2 className="mb-6 text-2xl font-semibold">Dashboard</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section
+          id="overview"
+          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2 lg:col-span-3"
+        >
+          <h3 className="mb-3 text-base font-medium">Overview</h3>
+          <OverviewPanel refreshKey={locationsVersion} />
+        </section>
+
         <section
           id="sensors"
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:col-span-2"
